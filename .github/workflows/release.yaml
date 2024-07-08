@@ -1,0 +1,37 @@
+name: ff binary
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  release-ff:
+    name: Release ff binary
+    permissions:
+      contents: write
+      packages: write
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: ["386", amd64, arm64]
+        exclude:
+          - goarch: "386"
+            goos: darwin
+          - goarch: arm64
+            goos: windows
+          - goarch: "386"
+            goos: windows
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          project_path: "./"
+          binary_name: "ff"
+          compress_assets: "OFF"
+          md5sum: false
+          ldflags: "-s -w"
+          asset_name: "ff-${{ matrix.goos }}-${{ matrix.goarch }}"
